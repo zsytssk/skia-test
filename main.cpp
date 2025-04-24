@@ -1,25 +1,47 @@
+#include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkData.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkSurface.h"
-#include "include/core/SkPaint.h"
-#include "include/core/SkImage.h"
-#include "include/core/SkData.h"
+#include "include/encode/SkPngEncoder.h"
+#include "include/utils/SkNullCanvas.h"
 #include "include/core/SkStream.h"
+
+#include <fstream>
 
 int main()
 {
-    SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);
-    auto surface = SkSurfaces::Raster(info);
-    SkCanvas *canvas = surface->getCanvas();
+    // Step 1: Create a bitmap
+    SkBitmap bitmap;
+    bitmap.allocPixels(SkImageInfo::MakeN32Premul(100, 100));
+    bitmap.eraseColor(SK_ColorRED);
 
-    SkPaint paint;
-    paint.setColor(SK_ColorRED);
-    canvas->drawCircle(128, 128, 100, paint);
+    // Step 2: Get pixmap
+    SkPixmap pixmap;
+    if (!bitmap.peekPixels(&pixmap))
+    {
+        printf("Failed to peek pixels.\n");
+        return 1;
+    }
 
-    auto image = surface->makeImageSnapshot();
-    auto data = image->refEncodedData();
-    SkFILEWStream out("circle.png");
-    out.write(data->data(), data->size());
+    // Step 3: Encode to PNG using a SkDynamicMemoryWStream
+    SkPngEncoder::Options options;
+    options.fFilterFlags = SkPngEncoder::FilterFlag::kSub;
 
+    SkDynamicMemoryWStream stream;
+    bool success = SkPngEncoder::Encode(&stream, pixmap, options);
+    if (!success)
+    {
+        printf("Encoding failed.\n");
+        return 1;
+    }
+
+    // Step 4: Convert stream to SkData and save
+    sk_sp<SkData> pngData = stream.detachAsData();
+    std::ofstream out("output.png", std::ios::binary);
+    out.write((const char *)pngData->data(), pngData->size());
+    out.close();
+
+    printf("Saved to output.png\n");
     return 0;
 }
