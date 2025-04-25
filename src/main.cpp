@@ -5,15 +5,8 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 
-#include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
-#include "include/core/SkData.h"
-#include "include/core/SkImageInfo.h"
-#include "include/core/SkSurface.h"
-#include "include/encode/SkPngEncoder.h"
-#include "include/utils/SkNullCanvas.h"
-#include "include/core/SkStream.h"
-#include "include/core/SkGraphics.h"
+#include "include/core/SkPaint.h"
 
 #include "win.cpp"
 

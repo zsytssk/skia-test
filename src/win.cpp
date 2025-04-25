@@ -125,6 +125,7 @@ static void
 win_handle_events(win_t *win)
 {
     XEvent xev;
+    bool needs_redraw = false;
 
     while (1)
     {
@@ -151,6 +152,7 @@ win_handle_events(win_t *win)
                 win->height = cev->height;
 
                 win_init_skia(win);
+                needs_redraw = true;
             }
         }
         break;
@@ -161,10 +163,16 @@ win_handle_events(win_t *win)
             if (eev->count == 0)
             {
 
-                win_draw(win);
+                needs_redraw = true;
             }
         }
         break;
+        }
+
+        if (needs_redraw)
+        {
+            win_draw(win);
+            needs_redraw = false;
         }
     }
 }
