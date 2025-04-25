@@ -8,9 +8,18 @@
 #include "include/core/SkStream.h"
 
 #include <fstream>
+#include <filesystem>
+#include <iostream>
 
 int main()
 {
+
+    std::filesystem::path outputPath = "out";
+    if (!std::filesystem::exists(outputPath))
+    {
+        std::filesystem::create_directories(outputPath);
+    }
+
     SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);
     auto surface = SkSurfaces::Raster(info);
     if (!surface)
@@ -22,8 +31,13 @@ int main()
     SkCanvas *canvas = surface->getCanvas();
 
     SkPaint paint;
-    paint.setColor(SK_ColorRED);
-    canvas->drawCircle(128, 128, 100, paint);
+
+    paint.setAntiAlias(true);
+    canvas->drawCircle(128, 128, 90, paint);
+    paint.setColor(SK_ColorWHITE);
+    canvas->drawCircle(86, 86, 20, paint);
+    canvas->drawCircle(160, 76, 20, paint);
+    canvas->drawCircle(140, 150, 35, paint);
 
     auto image = surface->makeImageSnapshot();
     if (!image)

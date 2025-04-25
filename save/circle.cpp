@@ -8,32 +8,45 @@
 #include "include/core/SkStream.h"
 
 #include <fstream>
-
 #include <filesystem>
 #include <iostream>
 
 int main()
 {
+
     std::filesystem::path outputPath = "out";
     if (!std::filesystem::exists(outputPath))
     {
         std::filesystem::create_directories(outputPath);
     }
 
-    // Step 1: Create a bitmap
-    SkBitmap bitmap;
-    bitmap.allocPixels(SkImageInfo::MakeN32Premul(100, 100));
-    bitmap.eraseColor(SK_ColorRED);
+    SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);
+    auto surface = SkSurfaces::Raster(info);
+    if (!surface)
+    {
+        fprintf(stderr, "Failed to create SkSurface\n");
+        return 1;
+    }
 
-    // Step 2: Get pixmap
+    SkCanvas *canvas = surface->getCanvas();
+
+    SkPaint paint;
+    paint.setColor(SK_ColorRED);
+    canvas->drawCircle(128, 128, 100, paint);
+
+    auto image = surface->makeImageSnapshot();
+    if (!image)
+    {
+        fprintf(stderr, "Failed to make image snapshot\n");
+        return 1;
+    }
+
     SkPixmap pixmap;
-    if (!bitmap.peekPixels(&pixmap))
+    if (!image->peekPixels(&pixmap))
     {
         printf("Failed to peek pixels.\n");
         return 1;
     }
-
-    // Step 3: Encode to PNG using a SkDynamicMemoryWStream
     SkPngEncoder::Options options;
     options.fFilterFlags = SkPngEncoder::FilterFlag::kSub;
 
@@ -41,16 +54,13 @@ int main()
     bool success = SkPngEncoder::Encode(&stream, pixmap, options);
     if (!success)
     {
-        printf("Encoding failed.\n");
+        fprintf(stderr, "Failed to encode PNG with SkPngEncoder\n");
         return 1;
     }
-
-    // Step 4: Convert stream to SkData and save
     sk_sp<SkData> pngData = stream.detachAsData();
-    std::ofstream out("out/rect.png", std::ios::binary);
-    out.write((const char *)pngData->data(), pngData->size());
-    out.close();
+    SkFILEWStream out("out/circle.png");
+    stream.copyTo(&out);
+    out.write(pngData->data(), pngData->size());
 
-    printf("Saved to rect.png\n");
     return 0;
 }
