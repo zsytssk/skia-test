@@ -1,3 +1,5 @@
+
+
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <stdio.h>
@@ -5,30 +7,30 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkGraphics.h"
+#include "win_skia.h"
 
-typedef struct win
-{
-    Display *dpy;
-    int scr;
+// typedef struct win
+// {
+//     Display *dpy;
+//     int scr;
 
-    Window win;
+//     Window win;
 
-    int width, height;
-    KeyCode quit_code;
+//     int width, height;
+//     KeyCode quit_code;
 
-    GC gc;
-    XImage *ximage;
-    SkBitmap bitmap;
-    Pixmap buffer;
-} win_t;
+//     GC gc;
+//     XImage *ximage;
+//     SkBitmap bitmap;
+//     Pixmap buffer;
+// } win_t;
 
-static void win_init(win_t *win);
-static void win_deinit(win_t *win);
-static void win_handle_events(win_t *win);
-static void win_init_skia(win_t *win);
+// void win_init(win_t *win);
+// void win_deinit(win_t *win);
+// void win_handle_events(win_t *win);
+// void win_init_skia(win_t *win);
 
-static win_t
-dpy_init()
+win_t dpy_init()
 {
     SkGraphics::Init();
 
@@ -45,7 +47,7 @@ dpy_init()
     return win;
 }
 
-static void win_init(win_t *win)
+void win_init(win_t *win)
 {
     Window root;
 
@@ -80,7 +82,7 @@ static void win_init(win_t *win)
     win_init_skia(win);
 }
 
-static void win_init_skia(win_t *win)
+void win_init_skia(win_t *win)
 {
     if (win->buffer)
     {
@@ -108,8 +110,7 @@ static void win_init_skia(win_t *win)
     win->bitmap.installPixels(info, win->ximage->data, win->width * 4);
 }
 
-static void
-win_deinit(win_t *win)
+void win_deinit(win_t *win)
 {
     if (win->buffer)
     {
@@ -125,8 +126,7 @@ win_deinit(win_t *win)
     XCloseDisplay(win->dpy);
 }
 
-static void
-win_handle_events(win_t *win, void draw_fn(win_t *))
+void win_handle_events(win_t *win, void draw_fn(win_t *))
 {
     XEvent xev;
     bool needs_redraw = false;

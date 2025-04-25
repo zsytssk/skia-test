@@ -8,8 +8,9 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 
-#include "win.cpp"
+#include "win_skia.h"
 
+static void win_draw(win_t *win);
 int main(int argc, char *argv[])
 {
     win_t win = dpy_init();

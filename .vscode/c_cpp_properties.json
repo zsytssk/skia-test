@@ -3,7 +3,7 @@
     {
       "name": "Linux",
       "includePath": [
-        "${workspaceFolder}/**",
+        "${workspaceFolder}/libs/**",
         "/home/zsy/Documents/zsy/github/skia/**"
       ],
       "defines": [],
