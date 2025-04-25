@@ -83,23 +83,24 @@ static void win_init(win_t *win)
 
 static void win_init_skia(win_t *win)
 {
+    if (win->buffer)
+    {
+        XFreePixmap(win->dpy, win->buffer);
+        win->buffer = 0;
+    }
     if (win->ximage)
     {
         XDestroyImage(win->ximage);
         win->ximage = nullptr;
     }
-    if (win->buffer)
-    {
-        XFreePixmap(win->dpy, win->buffer);
-    }
-    win->buffer = XCreatePixmap(win->dpy, win->win, win->width, win->height, DefaultDepth(win->dpy, win->scr));
+    int depth = DefaultDepth(win->dpy, win->scr);
+    Visual *visual = DefaultVisual(win->dpy, win->scr);
+    // 创建与窗口深度一致的Pixmap
+    win->buffer = XCreatePixmap(win->dpy, win->win, win->width, win->height, depth);
 
-    Visual *visual = DefaultVisual(win->dpy, DefaultScreen(win->dpy));
-    XWindowAttributes attrs;
-    XGetWindowAttributes(win->dpy, win->win, &attrs);
+    // 创建XImage，确保像素格式与Skia兼容（32位ARGB）
     win->ximage = XCreateImage(
-        win->dpy, attrs.visual,
-        attrs.depth, ZPixmap, 0,
+        win->dpy, visual, depth, ZPixmap, 0,
         (char *)malloc(win->width * win->height * 4),
         win->width, win->height, 32, 0);
 

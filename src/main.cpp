@@ -33,6 +33,7 @@ int main(int argc, char *argv[])
 static void win_draw(win_t *win)
 {
 
+    XLockDisplay(win->dpy);
     // 使用 Skia 绘制
     SkCanvas canvas(win->bitmap);
     canvas.clear(SK_ColorWHITE);
@@ -58,4 +59,6 @@ static void win_draw(win_t *win)
         0, 0);
 
     XFlush(win->dpy);
+
+    XUnlockDisplay(win->dpy); // 解锁显示
 }
