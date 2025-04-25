@@ -2,6 +2,9 @@
 #include <X11/Xutil.h>
 #include <stdio.h>
 #include <cstdlib>
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkGraphics.h"
 
 typedef struct win
 {
@@ -9,20 +12,26 @@ typedef struct win
     int scr;
 
     Window win;
-    GC gc;
 
     int width, height;
     KeyCode quit_code;
+
+    GC gc;
+    XImage *ximage;
+    SkBitmap bitmap;
 } win_t;
 
 static void win_init(win_t *win);
 static void win_deinit(win_t *win);
 static void win_draw(win_t *win);
 static void win_handle_events(win_t *win);
+static void win_init_skia(win_t *win);
 
 static win_t
 dpy_init()
 {
+    SkGraphics::Init();
+
     win_t win;
     win.dpy = XOpenDisplay(0);
 
@@ -66,6 +75,31 @@ static void win_init(win_t *win)
     classHint->res_class = const_cast<char *>("test");
     XSetClassHint(win->dpy, win->win, classHint);
     XFree(classHint);
+
+    win->ximage = nullptr;
+    win_init_skia(win);
+}
+
+static void win_init_skia(win_t *win)
+{
+    if (win->ximage)
+    {
+        XDestroyImage(win->ximage);
+        win->ximage = nullptr;
+    }
+
+    Visual *visual = DefaultVisual(win->dpy, DefaultScreen(win->dpy));
+    XWindowAttributes attrs;
+    XGetWindowAttributes(win->dpy, win->win, &attrs);
+    win->ximage = XCreateImage(
+        win->dpy, attrs.visual,
+        attrs.depth, ZPixmap, 0,
+        (char *)malloc(win->width * win->height * 4),
+        win->width, win->height, 32, 0);
+
+    // 初始化 Skia
+    SkImageInfo info = SkImageInfo::MakeN32Premul(win->width, win->height);
+    win->bitmap.installPixels(info, win->ximage->data, win->width * 4);
 }
 
 static void
@@ -101,6 +135,7 @@ win_handle_events(win_t *win)
 
             win->width = cev->width;
             win->height = cev->height;
+            win_init_skia(win);
         }
         break;
         case Expose:
@@ -110,7 +145,7 @@ win_handle_events(win_t *win)
             if (eev->count == 0)
             {
 
-                // win_draw(win);
+                win_draw(win);
             }
         }
         break;

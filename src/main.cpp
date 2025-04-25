@@ -32,25 +32,9 @@ int main(int argc, char *argv[])
 
 static void win_draw(win_t *win)
 {
-    printf("win_draw\n");
-
-    Visual *visual = DefaultVisual(win->dpy, DefaultScreen(win->dpy));
-    XWindowAttributes attrs;
-    XGetWindowAttributes(win->dpy, win->win, &attrs);
-    XImage *ximage = XCreateImage(
-        win->dpy, attrs.visual,
-        attrs.depth, ZPixmap, 0,
-        (char *)malloc(win->width * win->height * 4),
-        win->width, win->height, 32, 0);
-
-    // 初始化 Skia
-    SkGraphics::Init();
-    SkImageInfo info = SkImageInfo::MakeN32Premul(win->width, win->height);
-    SkBitmap bitmap;
-    bitmap.installPixels(info, ximage->data, win->width * 4);
 
     // 使用 Skia 绘制
-    SkCanvas canvas(bitmap);
+    SkCanvas canvas(win->bitmap);
     canvas.clear(SK_ColorWHITE);
 
     SkPaint paint;
@@ -63,9 +47,8 @@ static void win_draw(win_t *win)
     canvas.drawCircle(140, 150, 35, paint);
 
     // 显示到窗口
-    GC gc = DefaultGC(win->dpy, win->scr);
     XPutImage(
-        win->dpy, win->win, gc, ximage,
+        win->dpy, win->win, win->gc, win->ximage,
         0, 0, 0, 0,
         win->width, win->height);
 }
