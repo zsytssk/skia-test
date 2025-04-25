@@ -24,7 +24,6 @@ typedef struct win
 
 static void win_init(win_t *win);
 static void win_deinit(win_t *win);
-static void win_draw(win_t *win);
 static void win_handle_events(win_t *win);
 static void win_init_skia(win_t *win);
 
@@ -123,6 +122,7 @@ win_deinit(win_t *win)
         win->ximage = nullptr;
     }
     XDestroyWindow(win->dpy, win->win);
+    XCloseDisplay(win->dpy);
 }
 
 static void
