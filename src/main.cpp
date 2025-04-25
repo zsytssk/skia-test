@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
     win_init(&win);
     win_draw(&win);
 
-    win_handle_events(&win);
+    win_handle_events(&win, win_draw);
 
     win_deinit(&win);
     XCloseDisplay(win.dpy);

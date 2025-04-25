@@ -117,12 +117,16 @@ win_deinit(win_t *win)
         XFreePixmap(win->dpy, win->buffer);
         win->buffer = 0;
     }
-    XDestroyImage(win->ximage);
+    if (win->ximage)
+    {
+        XDestroyImage(win->ximage);
+        win->ximage = nullptr;
+    }
     XDestroyWindow(win->dpy, win->win);
 }
 
 static void
-win_handle_events(win_t *win)
+win_handle_events(win_t *win, void draw_fn(win_t *))
 {
     XEvent xev;
     bool needs_redraw = false;
@@ -171,7 +175,7 @@ win_handle_events(win_t *win)
 
         if (needs_redraw)
         {
-            win_draw(win);
+            draw_fn(win);
             needs_redraw = false;
         }
     }
