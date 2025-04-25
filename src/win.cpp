@@ -19,6 +19,7 @@ typedef struct win
     GC gc;
     XImage *ximage;
     SkBitmap bitmap;
+    Pixmap buffer;
 } win_t;
 
 static void win_init(win_t *win);
@@ -33,6 +34,7 @@ dpy_init()
     SkGraphics::Init();
 
     win_t win;
+    memset(&win, 0, sizeof(win_t));
     win.dpy = XOpenDisplay(0);
 
     if (win.dpy == NULL)
@@ -76,7 +78,6 @@ static void win_init(win_t *win)
     XSetClassHint(win->dpy, win->win, classHint);
     XFree(classHint);
 
-    win->ximage = nullptr;
     win_init_skia(win);
 }
 
@@ -87,6 +88,11 @@ static void win_init_skia(win_t *win)
         XDestroyImage(win->ximage);
         win->ximage = nullptr;
     }
+    if (win->buffer)
+    {
+        XFreePixmap(win->dpy, win->buffer);
+    }
+    win->buffer = XCreatePixmap(win->dpy, win->win, win->width, win->height, DefaultDepth(win->dpy, win->scr));
 
     Visual *visual = DefaultVisual(win->dpy, DefaultScreen(win->dpy));
     XWindowAttributes attrs;
@@ -105,6 +111,11 @@ static void win_init_skia(win_t *win)
 static void
 win_deinit(win_t *win)
 {
+    if (win->buffer)
+    {
+        XFreePixmap(win->dpy, win->buffer);
+        win->buffer = 0;
+    }
     XDestroyImage(win->ximage);
     XDestroyWindow(win->dpy, win->win);
 }
@@ -132,10 +143,14 @@ win_handle_events(win_t *win)
         case ConfigureNotify:
         {
             XConfigureEvent *cev = &xev.xconfigure;
+            if (cev->width != win->width || cev->height != win->height)
+            {
 
-            win->width = cev->width;
-            win->height = cev->height;
-            win_init_skia(win);
+                win->width = cev->width;
+                win->height = cev->height;
+
+                win_init_skia(win);
+            }
         }
         break;
         case Expose:

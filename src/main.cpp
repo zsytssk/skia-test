@@ -46,9 +46,16 @@ static void win_draw(win_t *win)
     canvas.drawCircle(160, 76, 20, paint);
     canvas.drawCircle(140, 150, 35, paint);
 
-    // 显示到窗口
     XPutImage(
-        win->dpy, win->win, win->gc, win->ximage,
+        win->dpy, win->buffer, win->gc, win->ximage,
         0, 0, 0, 0,
         win->width, win->height);
+
+    // 一次性从Pixmap复制到窗口
+    XCopyArea(
+        win->dpy, win->buffer, win->win, win->gc,
+        0, 0, win->width, win->height,
+        0, 0);
+
+    XFlush(win->dpy);
 }
