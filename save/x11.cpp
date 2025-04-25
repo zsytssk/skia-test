@@ -26,8 +26,8 @@ int main()
 
     XStoreName(display, window, "skia-test");
     XClassHint *classHint = XAllocClassHint();
-    classHint->res_name = const_cast<char *>("test");
-    classHint->res_class = const_cast<char *>("test");
+    classHint->res_name = const_cast<char *>("test.test1");
+    classHint->res_class = const_cast<char *>("test.test2");
     XSetClassHint(display, window, classHint);
     XFree(classHint);
 
@@ -73,8 +73,8 @@ int main()
                 0, 0, 0, 0,
                 800, 600);
         }
-        if (e.type == KeyPress)
-            break;
+        // if (e.type == KeyPress)
+        //     break;
     }
 
     // 清理资源
