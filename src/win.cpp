@@ -1,3 +1,4 @@
+#include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <stdio.h>
 #include <cstdlib>
@@ -48,6 +49,8 @@ static void win_init(win_t *win)
                                    win->width, win->height, 0,
                                    BlackPixel(win->dpy, win->scr), BlackPixel(win->dpy, win->scr));
 
+    win->gc = DefaultGC(win->dpy, win->scr);
+
     win->quit_code = XKeysymToKeycode(win->dpy, XStringToKeysym("Q"));
 
     XSelectInput(win->dpy, win->win,
@@ -68,6 +71,7 @@ static void win_init(win_t *win)
 static void
 win_deinit(win_t *win)
 {
+    XDestroyImage(win->ximage);
     XDestroyWindow(win->dpy, win->win);
 }
 
@@ -102,11 +106,11 @@ win_handle_events(win_t *win)
         case Expose:
         {
             XExposeEvent *eev = &xev.xexpose;
-
+            // printf("event:>Expose\n");
             if (eev->count == 0)
             {
 
-                win_draw(win);
+                // win_draw(win);
             }
         }
         break;

@@ -30,9 +30,10 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-static void
-win_draw(win_t *win)
+static void win_draw(win_t *win)
 {
+    printf("win_draw\n");
+
     Visual *visual = DefaultVisual(win->dpy, DefaultScreen(win->dpy));
     XWindowAttributes attrs;
     XGetWindowAttributes(win->dpy, win->win, &attrs);
