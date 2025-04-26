@@ -36,8 +36,8 @@ $(TARGET): $(OBJECTS) | $(BIN_DIR)
 	@echo "\nBuilt target: $@"
 
 # 编译每个 .cpp 为 .o
-# %.o: %.cpp
-# 	$(CXX) $(CXXFLAGS) -c $< -o $@
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # 创建 bin 目录
 $(BIN_DIR):

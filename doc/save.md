@@ -1,3 +1,5 @@
+## 2025-04-26 12:43:53
+
 https://skia.org/docs/user/api/skcanvas_overview/
 https://chromium.googlesource.com/skia.git/+/chrome/m42/site/user/sample/hello.md
 https://skia.org/docs/user/build/
@@ -7,3 +9,7 @@ bin/gn gen out/Static --args='is_official_build=true  is_component_build=false s
 
 ninja -C out/Static
 ```
+
+## 2025-04-26 12:43:57
+
+- @ques 这个简单的渲染为什么会不停的闪？是没有使用 GPU 吗？

@@ -7,6 +7,8 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/core/SkPath.h"
 
 #include "win_skia.h"
 
@@ -15,7 +17,7 @@ int main(int argc, char *argv[])
 {
     win_t win = dpy_init();
     win_init(&win);
-    win_draw(&win);
+    // win_draw(&win);
 
     win_handle_events(&win, win_draw);
 
@@ -29,16 +31,27 @@ static void win_draw(win_t *win)
     XLockDisplay(win->dpy);
     // 使用 Skia 绘制
     SkCanvas canvas(win->bitmap);
+
+    const SkScalar scale = 256.0f;
+    const SkScalar R = 0.45f * scale;
+    const SkScalar TAU = 6.2831853f;
+    SkPath path;
+    path.moveTo(R, 0.0f);
+
+    const int n = 5;
+    for (int i = 1; i < n; i++)
+    {
+        SkScalar thela = 3 * i * TAU / n;
+        path.lineTo(R * cos(thela), R * sin(thela));
+    }
+    path.close();
+    SkPaint p;
+
+    p.setColor(SK_ColorRED);
+    p.setAntiAlias(true);
     canvas.clear(SK_ColorWHITE);
-
-    SkPaint paint;
-
-    paint.setAntiAlias(true);
-    canvas.drawCircle(128, 128, 90, paint);
-    paint.setColor(SK_ColorWHITE);
-    canvas.drawCircle(86, 86, 20, paint);
-    canvas.drawCircle(160, 76, 20, paint);
-    canvas.drawCircle(140, 150, 35, paint);
+    canvas.translate(0.5f * scale, 0.5f * scale);
+    canvas.drawPath(path, p);
 
     XPutImage(
         win->dpy, win->buffer, win->gc, win->ximage,
